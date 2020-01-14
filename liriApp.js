@@ -1,6 +1,8 @@
 require("dotenv").config();
+const fs = require("fs");
 const keys = require("./keys.js");
-// const spotify = new Spotify(keys.spotify);
+const Spotify = require('node-spotify-api')
+const spotify = new Spotify(keys.spotify);;
 const axios = require('axios').default;
 const inquirer = require("inquirer");
 
@@ -14,10 +16,22 @@ inquirer
         }
     ])
     .then(choice => {
-        console.log(choice.command);
-        if (choice.command === "concert-this") { initiateSearchForBand(); }
-        else if (choice.command === "movie-this") { initiateSearchForMovie(); }
+        switch (choice.command) {
+            case "concert-this":
+                initiateSearchForBand();
+                break;
+            case "spotify-this-song":
+                initiateSearchSpotify();
+                break;
+            case "movie-this":
+                initiateSearchForMovie();
+                break;
+            case "do-what-it-says":
+                doThis();
+                break;
+        }
     })
+    
 
 function initiateSearchForBand() {
     inquirer
@@ -31,7 +45,7 @@ function initiateSearchForBand() {
         .then(answer => {
             if (answer.band === "") {
                 console.log("Please enter a band!");
-                return initiateSearch();
+                return initiateSearchForBand();
             }
             let band = answer.band.replace(" ", "+");
             axios.get(`https://rest.bandsintown.com/artists/${band}/events?app_id=codingbootcamp`)
@@ -75,5 +89,34 @@ function initiateSearchForMovie() {
 
                 })
         });
+}
 
+function initiateSearchSpotify() {
+    inquirer
+        .prompt([
+            {
+                name: "track",
+                type: "input",
+                message: "What song you are loking for?"
+            }
+        ])
+        .then(answer => {
+            if (answer.track === "") {
+                answer.track = "The Sign";
+            }
+            spotify
+                .search({ type: 'track', query: answer.track })
+                .then(response => {
+                    for (let track of response.tracks.items){
+                    console.log("Artist: " + track.artists[0].name);
+                    console.log("Song Name: " + track.name);
+                    console.log("Preview Link: " + track.href);
+                    console.log("Album: " + track.album.name);
+                    console.log("************************************************");
+                }
+                })
+                .catch(err => {
+                    throw err;
+                })
+        })
 }
