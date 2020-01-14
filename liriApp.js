@@ -10,7 +10,7 @@ inquirer
             name: "command",
             type: "list",
             choices: ["concert-this", "spotify-this-song", "movie-this", "do-what-it-says"],
-            message: "Choose the comand"
+            message: "what are you up for today?"
         }
     ])
     .then(choice => {
