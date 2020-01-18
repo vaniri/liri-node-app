@@ -4,7 +4,6 @@ const keys = require("./keys.js");
 const Spotify = require('node-spotify-api');
 const spotify = new Spotify(keys.spotify);;
 const axios = require('axios').default;
-const inquirer = require("inquirer");
 
 
 let colors = ["30", "31", "32", "33", "34", "35",];
@@ -13,54 +12,10 @@ function getColor(arr) {
     let color = `\x1b[${arr[Math.floor(Math.random() * arr.length)]}m%s\x1b[0m`;
     return (color);
 }
-let divider = ">>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<";
 
-inquirer
-    .prompt([
-        {
-            name: "command",
-            type: "list",
-            choices: ["concert-this", "spotify-this-song", "movie-this", "do-what-it-says"],
-            message: "what are you up for today?"
-        }
-    ])
-    .then(choice => {
-        switch (choice.command) {
-            case "concert-this":
-                initiateSearchForBand();
-                break;
-            case "spotify-this-song":
-                initiateSearchSpotify();
-                break;
-            case "movie-this":
-                initiateSearchForMovie();
-                break;
-            case "do-what-it-says":
-                doThis();
-                break;
-        }
-    })
-
-
-function initiateSearchForBand() {
-    inquirer
-        .prompt([
-            {
-                name: "band",
-                type: "input",
-                message: "What band you are looking for?"
-            }
-        ])
-        .then(answer => {
-            searchForBand(answer.band);
-        })
-}
+const divider = ">>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<";
 
 function searchForBand(answer) {
-    if (answer === "") {
-        console.log("Please enter a band!");
-        return initiateSearchForBand();
-    }
     let band = answer.replace(" ", "+");
     axios.get(`https://rest.bandsintown.com/artists/${band}/events?app_id=codingbootcamp`)
         .then(response => {
@@ -71,20 +26,6 @@ function searchForBand(answer) {
                 printLogged("Date of the Event: " + response.data[i].datetime.replace("T", "\nStart at: "));
                 console.log(getColor(colors), divider);
             }
-        })
-}
-
-function initiateSearchForMovie() {
-    inquirer
-        .prompt([
-            {
-                name: "movie",
-                type: "input",
-                message: "What movie your searching for?"
-            }
-        ])
-        .then(answer => {
-            searchForMovie(answer.movie);
         })
 }
 
@@ -105,20 +46,6 @@ function searchForMovie(movie) {
             printLogged("Plot of the movie: " + response.data.Plot);
             printLogged("Actors in the movie: " + response.data.Actors);
             console.log(getColor(colors), divider);
-        })
-}
-
-function initiateSearchSpotify() {
-    inquirer
-        .prompt([
-            {
-                name: "track",
-                type: "input",
-                message: "What song you are loking for?"
-            }
-        ])
-        .then(answer => {
-            searchSpotify(answer.track);
         })
 }
 
@@ -162,13 +89,21 @@ function doThis() {
         }
     })
 }
-function log (data) {
+function log(data) {
     fs.appendFile("log.txt", data + "\n", (err) => {
         if (err) { throw err; }
     });
 }
 
-function printLogged (data) {
+function printLogged(data) {
     console.log(data);
     log(data);
 }
+
+
+module.exports = {
+    searchForBand,
+    searchForMovie,
+    searchSpotify,
+    doThis
+};
