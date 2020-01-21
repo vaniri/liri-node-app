@@ -10,7 +10,7 @@ let colors = ["30", "31", "32", "33", "34", "35",];
 
 function getColor(arr) {
     let color = `\x1b[${arr[Math.floor(Math.random() * arr.length)]}m%s\x1b[0m`;
-    return (color);
+    return color;
 }
 
 const divider = ">>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<";
